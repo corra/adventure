@@ -1,0 +1,146 @@
+March 19, 1992
+
+To: PC Adventure Users
+
+From: Ken Plotkin
+
+Subject: Adventure for MS-DOS
+
+-----------------------------------------------------------------
+
+CREDIT and DISCLAIMER/CLAIMER
+
+This program is a rehost into  the MS-DOS world  of  the classic,
+as written by Crowther and Woods.   The specific version rehosted
+is the RT-11  version  of  Release 3  from DECUS  (program number
+11-340),   as  developed  by  Blackett  and   Supnik.   The  file
+ADVENT.DOC consists of the release notes for that  version.  Full
+credit for the program remains with Crowther, Woods, Blackett and
+Supnik.   If there are any problems  with  this  release,  DO NOT
+BOTHER THEM.   I am  aware of  NO  problems  with  their release;
+anything that goes wrong (other than you not solving  the puzzles
+and emerging alive,  of course) with this is my fault.  I am very
+interested in  bug  reports,  since  there  were  a  few mystical
+aspects to the rehost.
+
+ENTHUSIASTIC PLUG
+
+If you have never played this  game,  you MUST do so now.   It is
+the  classic,  the  real  McCoy,  the  font  of  all,  etc.
+
+   o For programmers who disdain games,  remember  that  this was
+     addictive  to   REAL  programmers.    Its  arrival  at  most
+     programming departments  meant  one  or  two  weeks  of lost
+     productivity.   If you're a programmer and don't get  a kick
+     out of this, you're not a real programmer.
+
+   o For  game  players,  this  is  where  it  started.   Would a
+     baseball fan pass  on  a chance  to see Babe Ruth?   I think
+     not.
+
+   o For non-programmers who  aren't  into  games,  this  is your
+     chance to get a life.
+
+INSTALLATION INSTRUCTIONS
+
+The root directory of this disk contains the ready-to-go program.
+Just copy everything  (well, not quite -  you don't need this DOC
+file) onto a directory, log into that directory, and type ADVENT.
+You can also run it from  a floppy.   Make sure there's about 11K
+free  if  you want to  use the SAVE/RESTORE feature.  (Note that,
+in  contrast to  the  current perverted attitude in many "modern"
+adventure games, there is only  one save.   No multiple saves  to
+allow no-risk experimenting,  or  to  protect yourself  against a
+plethora of truly unreasonable deaths.)
+
+If all you want to do is play the game, go for it now, and do not
+read more of this memo.
+
+RECONSTRUCTION NOTES
+
+Subdirectory SOURCE contains all of  the source  code, one object
+module (the random number generator), and batch files to build it
+all.  If you start from scratch, read ADVENT.DOC for instructions
+on using ABUILD  to  generate  the two DAT files  from ATEXT.TXT.
+Ignore  the PDP-11  installation  details;  use the two BAT files
+provided.   When compiling and linking,  it is important that you
+use Microsoft Fortran Version 4.01.   (Hereafter  denoted MSF77.)
+As described in  the next  section,  the program may not  work if
+built  under other versions  -  5.0  in  particular has problems.
+Subdirectory SOURCE also  contains module AMAINA.FOR,  which is a
+modified version of AMAIN which did not fix everything, but which
+may be worth pursuing to exorcise the problem.
+
+Subdirectory RT11SRC contains the  original  DECUS  distribution,
+ASCII-transferred onto a PC disk.  This is  for reference if  you
+decide to go digging into the code after reading the following.
+
+PROGRAMMER'S NOTES
+
+The  rehost was performed  with the attitude of  absolute minimum
+change to the code.  Most changes are annotated using upper/lower
+case text.   That distinguishes  them from the all-caps  style of
+the original.  The following kinds of things are widespread:
+
+   o The IMPLICIT INTEGER  (A-Z)  statements have been changed to
+     INTEGER*2, to match the assumed data type.
+
+   o Liberal use of MSF77  intrinsic functions INT4  and INT2 has
+     been  made,  to avoid warnings  that  data  type  lengths in
+     subroutine calls have changed.
+
+   o All of the file open, close, and direct access commands have
+     been changed, to match MSF77 conventions.  The direct access
+     files  are opened  with  a binary  form,  which  is  a MSF77
+     extension and not a standard Fortran 77 structure.
+
+   o All ACCEPT,  TYPE,  ENCODE  and DECODE  statements have been
+     replaced with appropriate versions of READ and WRITE.
+
+   o Use  has  been  made  of  MSF77  data  type  conversion  and
+     bit-twiddling functions,  to  deal  with  the  stronger type
+     checking inherent in Fortran 77.   These functions are MSF77
+     extensions.
+
+   o The assembly  language  routine  ISHFT  used  in  the  RT-11
+     version is exactly  replaced by the identically  named MSF77
+     intrinsic function.
+
+   o The  random number generator has been  replaced  by one from
+     MSF77 Version 5.0.
+
+The  last  item  segues  into the biggest  mystery.  (Bigger than
+where the ____ hides the ____.)   The conversion worked fine when
+built under  MSF77  V4.01,  albeit  with  a  dummy  random number
+generator (the clock tick)  because V4.01 doesn't have one.  V5.0
+has a random number subroutine,  so I finally  upgraded, but when
+the program was built under V5.0 certain objects did not have the
+powers they were supposed to.  Even working the code to eliminate
+all  warnings,  and  dropping the  /4Yb switch,  did not help.  I
+therefore dropped  back to V4.01.   Not wanting to create  my own
+random number  generator,  I used the library  manager to extract
+RANDOM.OBJ from  the V5  emulator  library,   and added it to the
+link list.
+
+(Note  -  if /4Yb  is  used,  there are  occasional random pseudo
+"subscript out of  range"  crashes,  as associated with the MSF77
+/4Yb bug, even under V 4.01.)
+
+One  diagnostic that occurs  during compilation is that  AMAIN is
+too big for optimization.   That does not seem to cause problems.
+When  compiled under  V5.0,  that module generates two additional
+warnings,  both that  Label 2602  is used across  blocks.  It is:
+it's a DO loop that is jumped out of and jumped back  into.  (Are
+DO loop "extended ranges"  now illegal?  It's about time!)  (This
+same loop also generates a warning diagnostic under RT-11.)  File
+AMAINA.FOR  is  a  variation  of  AMAIN  that  fixes  the illegal
+reentry.   That removes the  warnings,  and  also  eliminates the
+message about it being  too complex for optimization.   That does
+not,  however,  help it to work properly under V5.0.  (The EXE in
+the root directory is built using AMAIN.)
+
+Despite not working with the latest  compiler,  the built program
+works just fine.   I have carefully play-tested it, including one
+full point Grandmaster game,  with no problems.  Except for those
+damned dwarfs.....
+
